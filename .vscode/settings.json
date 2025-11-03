@@ -1,0 +1,35 @@
+{
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "[typescript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[javascript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[json]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[jsonc]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[typescriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.acceptSuggestionOnEnter": "on",
+
+  "scm.diffDecorations": "all",
+  "scm.alwaysShowProviders": true,
+  "scm.providers.visible": 10,
+  "scm.showChangesSummary": true,
+  "scm.showIncomingChanges": "auto",
+  "scm.showOutgoingChanges": "auto",
+  "git.decorations.enabled": true,
+  "git.decorations.colors": true,
+  "git.decorations.badges": true,
+  "workbench.editor.enablePreview": false,
+  "explorer.compactFolders": false,
+  "workbench.editor.showTabs": "multiple"
+}
