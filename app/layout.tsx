@@ -26,13 +26,9 @@ export default function RootLayout({
     <html className="dark" lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
-        <div className="flex flex-col min-h-screen">
-          <header className="w-full border-b border-[#222729] py-6 px-8">
-            <h1>VAROS</h1>
-          </header>
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );
