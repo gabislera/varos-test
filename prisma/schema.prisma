@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CONSULTANT
+  CLIENT
+}
+
+model User {
+  id        String   @id @default(cuid())
+  role      UserRole
+  name      String
+  email     String   @unique
+  phone     String
+  age       Int?
+  cpf       String   @unique
+
+  zipCode   String
+  state     String
+  street    String
+  number    Int
+
+  reatedAt  DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  clients   User[]  @relation("ConsultantToClient")
+  consultant  User? @relation("ConsultantToClient", fields: [consultantId], references: [id])
+  consultantId  String
+
+  @@index([consultantId])
+}
+
+
+
