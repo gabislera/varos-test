@@ -142,14 +142,6 @@ export default function UsersPage() {
             error={errors.email}
             fullWidth
           />
-          <FormInput
-            label="CPF"
-            type="text"
-            placeholder="Digite o CPF"
-            register={register("cpf")}
-            error={errors.cpf}
-            fullWidth
-          />
 
           <div className="col-span-2">
             <Tabs defaultValue="userInfo" className="space-y-6">
@@ -168,20 +160,20 @@ export default function UsersPage() {
                     error={errors.age}
                   />
                   <FormInput
+                    label="CPF"
+                    type="text"
+                    placeholder="000.000.000-00"
+                    register={register("cpf")}
+                    error={errors.cpf}
+                  />
+                  <FormInput
                     label="CEP"
                     type="text"
-                    placeholder="Digite o CEP"
+                    placeholder="Insira o CEP"
                     register={register("address.zipcode")}
                     error={errors.address?.zipcode}
                   />
 
-                  <FormInput
-                    label="Estado"
-                    type="text"
-                    placeholder="Digite o estado"
-                    register={register("address.state")}
-                    error={errors.address?.state}
-                  />
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col gap-2 w-full col-span-2">
                       <Label>Estado</Label>
