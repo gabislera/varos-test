@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -80,12 +81,16 @@ export default function UsersPage() {
   return (
     <div className="flex flex-col items-center justify-center h-full">
       <header className="w-full border-b border-[#222729] py-6 px-8 flex items-center justify-between sticky top-0 bg-background">
-        <h1>VAROS</h1>
+        <Link href="/dashboard">
+          <h1>VAROS</h1>
+        </Link>
         <div className="flex items-center gap-4">
-          <Button type="submit" form="user-form" variant="outline">
+          <Button type="submit" form="user-form" variant="default">
             Criar usuário
           </Button>
-          <Button variant="outline">Deletar usuário</Button>
+          <Button variant="secondary" disabled>
+            Deletar usuário
+          </Button>
         </div>
       </header>
       <form

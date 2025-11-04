@@ -1,7 +1,8 @@
 import { PlusIcon } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { StatsCard } from "./components/stats-card";
 import { FilterBar } from "./components/filter-bar";
+import { StatsCard } from "./components/stats-card";
 import { UsersTable } from "./components/users-table";
 
 export interface User {
@@ -61,13 +62,15 @@ export default function DashboardPage() {
         />
 
         <div className="flex flex-col items-end gap-2">
-          <Button
-            type="button"
-            className="bg-[#1B3F1B] text-[#00F700] rounded-xs flex items-center gap-4"
-          >
-            Criar usuario
-            <PlusIcon className="w-4 h-4" color="#00F700" />
-          </Button>
+          <Link href="/users">
+            <Button
+              type="button"
+              className="rounded-xs flex items-center gap-4"
+            >
+              Criar usuario
+              <PlusIcon className="w-4 h-4" color="#00F700" />
+            </Button>
+          </Link>
           <FilterBar />
         </div>
       </div>
