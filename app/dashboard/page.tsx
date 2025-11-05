@@ -42,15 +42,17 @@ type SearchParams = {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
+  const params = await searchParams;
+
   const filters = {
-    consultantId: searchParams.consultantId,
-    consultantEmail: searchParams.consultantEmail,
-    startDate: searchParams.startDate
-      ? new Date(searchParams.startDate)
+    consultantId: params.consultantId,
+    consultantEmail: params.consultantEmail,
+    startDate: params.startDate
+      ? new Date(params.startDate)
       : undefined,
-    endDate: searchParams.endDate ? new Date(searchParams.endDate) : undefined,
+    endDate: params.endDate ? new Date(params.endDate) : undefined,
   };
 
   const users = await getUsers(filters);
