@@ -10,8 +10,13 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+interface MultiSelectOption {
+  id: string;
+  name: string;
+}
+
 interface MultiSelectProps {
-  options: string[];
+  options: string[] | MultiSelectOption[];
   selected: string[];
   onSelectionChange: (selected: string[]) => void;
   placeholder?: string;
@@ -29,21 +34,29 @@ export function MultiSelect({
 }: MultiSelectProps) {
   const [open, setOpen] = useState(false);
 
-  const toggleOption = (option: string) => {
-    const newSelected = selected.includes(option)
-      ? selected.filter((item) => item !== option)
-      : [...selected, option];
+  const normalizedOptions = options.map((opt) =>
+    typeof opt === "string" ? { id: opt, name: opt } : opt,
+  );
+
+  const toggleOption = (optionId: string) => {
+    const newSelected = selected.includes(optionId)
+      ? selected.filter((item) => item !== optionId)
+      : [...selected, optionId];
     onSelectionChange(newSelected);
   };
 
   const getDisplayText = () => {
     if (selected.length === 0) return placeholder;
 
-    const joined = selected.join(", ");
+    const selectedNames = selected
+      .map((id) => normalizedOptions.find((opt) => opt.id === id)?.name)
+      .filter(Boolean);
+
+    const joined = selectedNames.join(", ");
     if (joined.length <= 40) return joined;
 
     let truncated = "";
-    for (const name of selected) {
+    for (const name of selectedNames) {
       if (`${truncated}${name}, `.length > 40) break;
       truncated += `${name}, `;
     }
@@ -73,17 +86,17 @@ export function MultiSelect({
           align="start"
         >
           <ul className="max-h-60 overflow-y-auto bg-[#131516]">
-            {options.map((option) => {
-              const isSelected = selected.includes(option);
+            {normalizedOptions.map((option) => {
+              const isSelected = selected.includes(option.id);
               return (
                 <button
-                  key={option}
+                  key={option.id}
                   role="option"
                   type="button"
-                  onClick={() => toggleOption(option)}
+                  onClick={() => toggleOption(option.id)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
-                      toggleOption(option);
+                      toggleOption(option.id);
                     }
                   }}
                   className={cn(
@@ -91,7 +104,7 @@ export function MultiSelect({
                     isSelected && "bg-accent/60",
                   )}
                 >
-                  <span>{option}</span>
+                  <span>{option.name}</span>
                   {isSelected && <Check className="h-4 w-4 text-primary" />}
                 </button>
               );

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -17,47 +18,42 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createUser, getClients } from "./actions";
 import FormInput from "./components/form-input";
 
-const clients = [
-  "John Doe",
-  "Licon Doe",
-  "Steve Doe",
-  "Matt Doe",
-  "Sarah Doe",
-  "Lucas Doe",
-];
-
 const userSchema = z.object({
-  role: z.enum(["admin", "consulter", "client"]),
+  role: z.enum(["ADMIN", "CONSULTANT", "CLIENT"]),
   name: z.string().min(1, { message: "Nome é obrigatório" }),
   phone: z.string().regex(/^\(?\d{2}\)?[\s.-]?\d{4,5}[\s.-]?\d{4}$/, {
     message: "Telefone inválido",
   }),
-  email: z.string().email({ message: "Email inválido" }),
+  email: z.email({ message: "Email inválido" }),
   age: z
     .string()
     .regex(/^\d+$/, { message: "Idade deve ser um número" })
     .optional()
     .or(z.literal("")),
   cpf: z.string().min(11, { message: "CPF deve ter 11 dígitos" }),
-  address: z.object({
-    zipcode: z
-      .string()
-      .regex(/^\d{5}-?\d{3}$/, { message: "CEP inválido. Ex: 00000-000" }),
-    state: z.string().min(1, { message: "Estado é obrigatório" }),
-    street: z.string().min(1, { message: "Rua é obrigatória" }),
-    number: z
-      .string()
-      .min(1, { message: "Número é obrigatório" })
-      .regex(/^\d+$/, { message: "Número deve conter apenas dígitos" }),
-  }),
+  zipcode: z
+    .string()
+    .regex(/^\d{5}-?\d{3}$/, { message: "CEP inválido. Ex: 00000-000" }),
+  state: z.string().min(1, { message: "Estado é obrigatório" }),
+  street: z.string().min(1, { message: "Rua é obrigatória" }),
+  number: z
+    .string()
+    .min(1, { message: "Número é obrigatório" })
+    .regex(/^\d+$/, { message: "Número deve conter apenas dígitos" }),
   clients: z.array(z.string()).optional(),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
 
 export default function UsersPage() {
+  const [clients, setClients] = useState<
+    Array<{ id: string; name: string; email: string }>
+  >([]);
+  const [loadingClients, setLoadingClients] = useState(true);
+
   const {
     register,
     handleSubmit,
@@ -68,14 +64,34 @@ export default function UsersPage() {
     resolver: zodResolver(userSchema),
     mode: "onChange",
     defaultValues: {
-      role: "consulter",
+      role: "CONSULTANT",
       clients: [],
     },
   });
 
-  const onSubmit = (data: UserFormData) => {
-    console.log(data);
-    reset();
+  useEffect(() => {
+    async function fetchClients() {
+      setLoadingClients(true);
+      const result = await getClients();
+      if (result.success) {
+        setClients(result.data);
+      }
+      setLoadingClients(false);
+    }
+    fetchClients();
+  }, []);
+
+  const onSubmit = async (data: UserFormData) => {
+    const formattedData = {
+      ...data,
+      clientIds: data.clients,
+    };
+
+    const result = await createUser(formattedData);
+
+    if (result.success) {
+      reset();
+    }
   };
 
   return (
@@ -111,9 +127,9 @@ export default function UsersPage() {
                   </SelectTrigger>
                   <SelectContent className="">
                     <SelectGroup>
-                      <SelectItem value="admin">Administrador</SelectItem>
-                      <SelectItem value="consulter">Consultor</SelectItem>
-                      <SelectItem value="client">Cliente</SelectItem>
+                      <SelectItem value="ADMIN">Administrador</SelectItem>
+                      <SelectItem value="CONSULTANT">Consultor</SelectItem>
+                      <SelectItem value="CLIENT">Cliente</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -170,53 +186,65 @@ export default function UsersPage() {
                     label="CEP"
                     type="text"
                     placeholder="Insira o CEP"
-                    register={register("address.zipcode")}
-                    error={errors.address?.zipcode}
+                    register={register("zipcode")}
+                    error={errors.zipcode}
                   />
 
                   <div className="flex flex-col gap-2">
-                    <div className="flex flex-col gap-2 w-full col-span-2">
-                      <Label>Estado</Label>
-                      <Select>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecione o estado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Selecione o estado</SelectLabel>
-                            <SelectItem value="SP">São Paulo</SelectItem>
-                            <SelectItem value="RJ">Rio de Janeiro</SelectItem>
-                            <SelectItem value="MG">Minas Gerais</SelectItem>
-                            <SelectItem value="ES">Espírito Santo</SelectItem>
-                            <SelectItem value="RS">
-                              Rio Grande do Sul
-                            </SelectItem>
-                            <SelectItem value="PR">Paraná</SelectItem>
-                            <SelectItem value="SC">Santa Catarina</SelectItem>
-                            <SelectItem value="MS">
-                              Mato Grosso do Sul
-                            </SelectItem>
-                            <SelectItem value="MT">Mato Grosso</SelectItem>
-                            <SelectItem value="GO">Goiás</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <Label>Estado</Label>
+                    <Controller
+                      name="state"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione o estado" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Selecione o estado</SelectLabel>
+                              <SelectItem value="SP">São Paulo</SelectItem>
+                              <SelectItem value="RJ">Rio de Janeiro</SelectItem>
+                              <SelectItem value="MG">Minas Gerais</SelectItem>
+                              <SelectItem value="ES">Espírito Santo</SelectItem>
+                              <SelectItem value="RS">
+                                Rio Grande do Sul
+                              </SelectItem>
+                              <SelectItem value="PR">Paraná</SelectItem>
+                              <SelectItem value="SC">Santa Catarina</SelectItem>
+                              <SelectItem value="MS">
+                                Mato Grosso do Sul
+                              </SelectItem>
+                              <SelectItem value="MT">Mato Grosso</SelectItem>
+                              <SelectItem value="GO">Goiás</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.state && (
+                      <span className="text-red-500 text-sm">
+                        {errors.state.message}
+                      </span>
+                    )}
                   </div>
                   <FormInput
                     label="Endereço"
                     type="text"
                     placeholder="Digite o endereço"
-                    register={register("address.street")}
-                    error={errors.address?.street}
+                    register={register("street")}
+                    error={errors.street}
                     fullWidth
                   />
                   <FormInput
                     label="Complemento"
                     placeholder="Digite o complemento"
                     type="text"
-                    register={register("address.number")}
-                    error={errors.address?.number}
+                    register={register("number")}
+                    error={errors.number}
                     fullWidth
                   />
                 </div>
@@ -228,13 +256,23 @@ export default function UsersPage() {
                   control={control}
                   render={({ field, fieldState }) => (
                     <div>
-                      <MultiSelect
-                        options={clients}
-                        selected={field.value || []}
-                        onSelectionChange={field.onChange}
-                        placeholder="Selecione clientes..."
-                        label="Clientes"
-                      />
+                      {loadingClients ? (
+                        <p className="text-sm text-muted-foreground">
+                          Carregando clientes...
+                        </p>
+                      ) : clients.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          Nenhum cliente encontrado.
+                        </p>
+                      ) : (
+                        <MultiSelect
+                          options={clients}
+                          selected={field.value || []}
+                          onSelectionChange={field.onChange}
+                          placeholder="Selecione clientes..."
+                          label="Clientes"
+                        />
+                      )}
                       {fieldState.error && (
                         <span className="text-red-500 text-sm">
                           {fieldState.error.message}
