@@ -1,55 +1,60 @@
+import type { UserRole } from "@prisma/client";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { getUsers } from "./actions";
 import { FilterBar } from "./components/filter-bar";
 import { StatsCard } from "./components/stats-card";
 import { UsersTable } from "./components/users-table";
 
 export interface User {
+  id: string;
+  role: UserRole;
   name: string;
   email: string;
   phone: string;
   cpf: string;
-  age: number;
-  address: string;
-  createdAt: string;
-  updatedAt: string;
+  age: number | null;
+  zipCode: string;
+  state: string;
+  street: string;
+  number: number;
+  consultant: {
+    name: string;
+    email: string;
+  } | null;
+  clients: {
+    id: string;
+    name: string;
+    email: string;
+  }[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
-const users: User[] = [
-  {
-    name: "Jhon Doe",
-    email: "jhon.doe@gmail.com",
-    phone: "1234567890",
-    cpf: "1234567890",
-    age: 25,
-    address: "1234567890",
-    createdAt: "2025-01-01",
-    updatedAt: "2025-01-01",
-  },
-  {
-    name: "Jane Doe",
-    email: "jane.doe@gmail.com",
-    phone: "1234567890",
-    cpf: "1234567890",
-    age: 25,
-    address: "1234567890",
-    createdAt: "2025-01-01",
-    updatedAt: "2025-01-01",
-  },
-  {
-    name: "Jim Beam",
-    email: "jim.beam@gmail.com",
-    phone: "1234567890",
-    cpf: "1234567890",
-    age: 25,
-    address: "1234567890",
-    createdAt: "2025-01-01",
-    updatedAt: "2025-01-01",
-  },
-];
+type SearchParams = {
+  consultantId: string;
+  consultantEmail?: string;
+  startDate?: string;
+  endDate?: string;
+};
 
-export default function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const filters = {
+    consultantId: searchParams.consultantId,
+    consultantEmail: searchParams.consultantEmail,
+    startDate: searchParams.startDate
+      ? new Date(searchParams.startDate)
+      : undefined,
+    endDate: searchParams.endDate ? new Date(searchParams.endDate) : undefined,
+  };
+
+  const users = await getUsers(filters);
+
   return (
     <main className="flex-1 p-16 flex-col flex gap-6">
       <h2 className="text-2xl font-bold">Dashboard</h2>

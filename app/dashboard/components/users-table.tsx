@@ -13,6 +13,9 @@ interface UsersTableProps {
 }
 
 export function UsersTable({ users }: UsersTableProps) {
+  const fullAddress = (user: User) => {
+    return `${user.street}, ${user.number} - ${user.state}`;
+  };
   return (
     <Table className="border border-[#222729] rounded-md">
       <TableHeader>
@@ -35,9 +38,13 @@ export function UsersTable({ users }: UsersTableProps) {
             <TableCell>{user.phone}</TableCell>
             <TableCell>{user.cpf}</TableCell>
             <TableCell>{user.age}</TableCell>
-            <TableCell>{user.address}</TableCell>
-            <TableCell>{user.createdAt}</TableCell>
-            <TableCell>{user.updatedAt}</TableCell>
+            <TableCell>{fullAddress(user)}</TableCell>
+            <TableCell>
+              {new Date(user.createdAt).toLocaleDateString("pt-BR")}
+            </TableCell>
+            <TableCell>
+              {new Date(user.updatedAt).toLocaleDateString("pt-BR")}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
