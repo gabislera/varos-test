@@ -51,7 +51,6 @@ export const brazilianStates = [
 
 export function formatCep(value: string): string {
   const numbers = value.replace(/\D/g, "");
-
   const limited = numbers.slice(0, 8);
 
   if (limited.length <= 5) {
@@ -59,6 +58,40 @@ export function formatCep(value: string): string {
   }
 
   return `${limited.slice(0, 5)}-${limited.slice(5)}`;
+}
+
+export function formatCpf(value: string): string {
+  const numbers = value.replace(/\D/g, "");
+  const limited = numbers.slice(0, 11);
+
+  if (limited.length <= 3) {
+    return limited;
+  }
+  if (limited.length <= 6) {
+    return `${limited.slice(0, 3)}.${limited.slice(3)}`;
+  }
+  if (limited.length <= 9) {
+    return `${limited.slice(0, 3)}.${limited.slice(3, 6)}.${limited.slice(6)}`;
+  }
+
+  return `${limited.slice(0, 3)}.${limited.slice(3, 6)}.${limited.slice(6, 9)}-${limited.slice(9)}`;
+}
+
+export function formatPhone(value: string): string {
+  const numbers = value.replace(/\D/g, "");
+  const limited = numbers.slice(0, 11);
+
+  if (limited.length <= 2) {
+    return limited;
+  }
+  if (limited.length <= 6) {
+    return `(${limited.slice(0, 2)}) ${limited.slice(2)}`;
+  }
+  if (limited.length <= 10) {
+    return `(${limited.slice(0, 2)}) ${limited.slice(2, 6)}-${limited.slice(6)}`;
+  }
+
+  return `(${limited.slice(0, 2)}) ${limited.slice(2, 7)}-${limited.slice(7)}`;
 }
 
 export async function fetchAddressByCep(cep: string): Promise<{

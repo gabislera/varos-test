@@ -20,7 +20,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { brazilianStates, fetchAddressByCep, formatCep } from "@/lib/utils";
+import {
+  brazilianStates,
+  fetchAddressByCep,
+  formatCep,
+  formatCpf,
+  formatPhone,
+} from "@/lib/utils";
 import { createUser, updateUser } from "../actions";
 import FormInput from "./form-input";
 
@@ -191,13 +197,28 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
           register={register("name")}
           error={errors.name}
         />
-        <FormInput
-          label="Telefone"
-          type="text"
-          placeholder="Digite o telefone"
-          register={register("phone")}
-          error={errors.phone}
-        />
+        <div className="flex flex-col gap-2">
+          <Label>Telefone</Label>
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="text"
+                placeholder="(00) 00000-0000"
+                value={field.value}
+                onChange={(e) => {
+                  const formatted = formatPhone(e.target.value);
+                  field.onChange(formatted);
+                }}
+                className="w-full"
+              />
+            )}
+          />
+          {errors.phone && (
+            <span className="text-red-500 text-sm">{errors.phone.message}</span>
+          )}
+        </div>
         <FormInput
           label="Email"
           type="email"
@@ -225,13 +246,30 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
                   register={register("age")}
                   error={errors.age}
                 />
-                <FormInput
-                  label="CPF"
-                  type="text"
-                  placeholder="000.000.000-00"
-                  register={register("cpf")}
-                  error={errors.cpf}
-                />
+                <div className="flex flex-col gap-2">
+                  <Label>CPF</Label>
+                  <Controller
+                    name="cpf"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="text"
+                        placeholder="000.000.000-00"
+                        value={field.value}
+                        onChange={(e) => {
+                          const formatted = formatCpf(e.target.value);
+                          field.onChange(formatted);
+                        }}
+                        className="w-full"
+                      />
+                    )}
+                  />
+                  {errors.cpf && (
+                    <span className="text-red-500 text-sm">
+                      {errors.cpf.message}
+                    </span>
+                  )}
+                </div>
                 <div className="flex flex-col gap-2">
                   <Label>CEP</Label>
                   <div className="relative">
