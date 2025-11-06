@@ -1,12 +1,15 @@
 import type { UserRole } from "@prisma/client";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
-import { getClientsByDays, getConsultants, getUsers } from "./actions";
-import { FilterBar } from "./components/filter-bar";
-import { MobileFilterDrawer } from "./components/mobile-filter-drawer";
-import { StatsCard } from "./components/stats-card";
-import { UsersTable } from "./components/users-table";
+import { FiltersData } from "./components/filters-data";
+import { StatsData } from "./components/stats-data";
+import { UsersData } from "./components/users-data";
+import { FilterBarSkeleton } from "./components/skeletons/filter-bar-skeleton";
+import { MobileFilterSkeleton } from "./components/skeletons/mobile-filter-skeleton";
+import { StatsCardSkeleton } from "./components/skeletons/stats-card-skeleton";
+import { UsersTableSkeleton } from "./components/skeletons/users-table-skeleton";
 
 export interface User {
   id: string;
@@ -54,19 +57,14 @@ export default async function DashboardPage({
     endDate: params.endDate ? new Date(params.endDate) : undefined,
   };
 
-  const users = await getUsers(filters);
-
-  const STATS_DAYS = 7;
-  const clientsCount = await getClientsByDays(STATS_DAYS);
-
-  const consultants = await getConsultants();
-
   return (
     <main className="flex-1 p-4 lg:p-16 flex-col flex gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Dashboard</h2>
         <div className="flex items-center gap-2 lg:hidden">
-          <MobileFilterDrawer consultants={consultants} />
+          <Suspense fallback={<MobileFilterSkeleton />}>
+            <FiltersData />
+          </Suspense>
           <Link href="/users/new">
             <Button
               type="button"
@@ -80,11 +78,9 @@ export default async function DashboardPage({
       </div>
 
       <div className="flex items-center justify-between">
-        <StatsCard
-          title="Total de clientes"
-          value={users.length}
-          period={`nos ultimos ${STATS_DAYS} dias`}
-        />
+        <Suspense fallback={<StatsCardSkeleton />}>
+          <StatsData />
+        </Suspense>
 
         <div className=" flex-col items-end gap-2 hidden lg:flex">
           <Link href="/users/new">
@@ -96,12 +92,16 @@ export default async function DashboardPage({
               <PlusIcon className="w-4 h-4" color="#00F700" />
             </Button>
           </Link>
-          <FilterBar consultants={consultants} />
+          <Suspense fallback={<FilterBarSkeleton />}>
+            <FiltersData />
+          </Suspense>
         </div>
       </div>
 
       <div>
-        <UsersTable users={users} />
+        <Suspense fallback={<UsersTableSkeleton />}>
+          <UsersData filters={filters} />
+        </Suspense>
       </div>
     </main>
   );

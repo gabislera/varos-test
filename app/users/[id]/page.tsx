@@ -1,7 +1,6 @@
-import { notFound } from "next/navigation";
-import { getUsers } from "@/app/dashboard/actions";
-import { getClients } from "../actions";
-import UserForm from "../components/user-form";
+import { Suspense } from "react";
+import { EditUserFormData } from "../components/edit-user-form-data";
+import { UserFormSkeleton } from "../components/skeletons/user-form-skeleton";
 
 export default async function EditUsersPage({
   params,
@@ -10,19 +9,11 @@ export default async function EditUsersPage({
 }) {
   const { id } = await params;
 
-  const users = await getUsers();
-  const user = users.find((u) => u.id === id);
-
-  if (!user) {
-    notFound();
-  }
-
-  const clientsResult = await getClients();
-  const clients = clientsResult.success ? clientsResult.data : [];
-
   return (
     <div className="flex flex-col items-center justify-center h-full p-4">
-      <UserForm user={user} clients={clients} />
+      <Suspense fallback={<UserFormSkeleton />}>
+        <EditUserFormData userId={id} />
+      </Suspense>
     </div>
   );
 }

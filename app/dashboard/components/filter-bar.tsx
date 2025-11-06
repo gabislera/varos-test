@@ -196,7 +196,7 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="justify-between gap-2 w-full lg:w-[240px]"
+              className="justify-between gap-2 w-full lg:w-[240px] rounded-md"
             >
               <span className="truncate">{formatDateRange()}</span>
               {dateRange?.from && (
