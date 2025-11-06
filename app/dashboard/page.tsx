@@ -82,7 +82,7 @@ export default async function DashboardPage({
       <div className="flex items-center justify-between">
         <StatsCard
           title="Total de clientes"
-          value={clientsCount}
+          value={users.length}
           period={`nos ultimos ${STATS_DAYS} dias`}
         />
 
