@@ -123,16 +123,18 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
   };
 
   return (
-    <div className="border border-[#222729] rounded-lg p-4 px-6 flex flex-col lg:flex-row items-center gap-6">
-      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 w-full">
+    <div className="lg:border border-[#222729] rounded-lg p-2 md:p-4 flex flex-col lg:flex-row items-center gap-6">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 w-full lg:w-auto">
         <Label className="text-xs">Nome do consultor</Label>
         <Select value={selectedName} onValueChange={setSelectedName}>
-          <SelectTrigger className="w-full lg:w-auto">
+          <SelectTrigger className="w-full lg:w-[140px]">
             <SelectValue>
-              {selectedName === "all"
-                ? "Todos"
-                : consultants.find((c) => c.id === selectedName)?.name ||
-                  "Selecione"}
+              <span className="truncate block">
+                {selectedName === "all"
+                  ? "Todos"
+                  : consultants.find((c) => c.id === selectedName)?.name ||
+                    "Selecione"}
+              </span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -155,15 +157,17 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 w-full">
-        <Label className="text-xs">Email do consultor</Label>
+      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 w-full lg:w-auto">
+        <Label className="text-xs ">Email do consultor</Label>
         <Select value={selectedEmail} onValueChange={setSelectedEmail}>
-          <SelectTrigger className="w-full lg:w-auto">
+          <SelectTrigger className="w-full lg:w-[140px]">
             <SelectValue>
-              {selectedEmail === "all"
-                ? "Todos"
-                : consultants.find((c) => c.email === selectedEmail)?.email ||
-                  "Selecione"}
+              <span className="truncate block">
+                {selectedEmail === "all"
+                  ? "Todos"
+                  : consultants.find((c) => c.email === selectedEmail)?.email ||
+                    "Selecione"}
+              </span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -186,15 +190,15 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 w-full">
-        <Label className="text-xs">Periodo</Label>
+      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 w-full lg:w-auto">
+        <Label className="text-xs whitespace-nowrap">Periodo</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="justify-between gap-2 w-full lg:w-auto"
+              className="justify-between gap-2 w-full lg:w-[240px]"
             >
-              <span>{formatDateRange()}</span>
+              <span className="truncate">{formatDateRange()}</span>
               {dateRange?.from && (
                 <button
                   onClick={(e) => {
