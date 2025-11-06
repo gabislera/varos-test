@@ -5,6 +5,7 @@ import type { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -99,17 +100,16 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
   const selectedRole = watch("role");
 
   const onSubmit = async (data: UserFormData) => {
-    console.log(data);
     startTransition(async () => {
       const result = user
         ? await updateUser(user.id, data)
         : await createUser(data);
 
       if (result.success) {
-        alert(result.message);
+        toast.success(result.message);
         router.push("/dashboard");
       } else {
-        alert(result.message);
+        toast.error(result.message);
       }
     });
   };
