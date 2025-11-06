@@ -1,14 +1,14 @@
-import { getUsers } from "../actions";
+import { getClientsByDays } from "../actions";
 import { StatsCard } from "./stats-card";
 
 export async function StatsData() {
   const STATS_DAYS = 7;
-  const users = await getUsers({});
+  const clientsCount = await getClientsByDays(STATS_DAYS);
 
   return (
     <StatsCard
       title="Total de clientes"
-      value={users.length}
+      value={clientsCount}
       period={`nos ultimos ${STATS_DAYS} dias`}
     />
   );

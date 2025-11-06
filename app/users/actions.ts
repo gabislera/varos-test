@@ -35,7 +35,8 @@ export async function getClients() {
     });
 
     return { success: true, data: clients };
-  } catch {
+  } catch (error) {
+    console.error("Erro ao buscar clientes:", error);
     return { success: false, data: [] };
   }
 }
@@ -83,7 +84,8 @@ export async function createUser(data: UserFormData) {
     revalidatePath("/dashboard");
     revalidatePath("/users");
     return { success: true, message: "Usuário criado com sucesso!" };
-  } catch {
+  } catch (error) {
+    console.error("Erro ao criar usuário:", error);
     return { success: false, message: "Erro ao criar usuário" };
   }
 }
@@ -116,7 +118,8 @@ export async function updateUser(id: string, data: UserFormData) {
     revalidatePath("/dashboard");
     revalidatePath("/users");
     return { success: true, message: "Usuário atualizado com sucesso!" };
-  } catch {
+  } catch (error) {
+    console.error("Erro ao atualizar usuário:", error);
     return { success: false, message: "Erro ao atualizar usuário" };
   }
 }
