@@ -12,6 +12,7 @@ export type UserFormData = {
   age?: number;
   cpf: string;
   zipCode: string;
+  city: string;
   state: string;
   street: string;
   number: number;
@@ -68,6 +69,7 @@ export async function createUser(data: UserFormData) {
         age: data.age ?? null,
         cpf: data.cpf,
         zipCode: data.zipCode,
+        city: data.city,
         state: data.state,
         street: data.street,
         number: data.number,
@@ -102,6 +104,7 @@ export async function updateUser(id: string, data: UserFormData) {
         age: data.age ?? null,
         cpf: data.cpf,
         zipCode: data.zipCode,
+        city: data.city,
         state: data.state,
         street: data.street,
         number: data.number,

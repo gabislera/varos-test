@@ -3,11 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import {
@@ -19,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { brazilianStates, fetchAddressByCep, formatCep } from "@/lib/utils";
 import { createUser, updateUser } from "../actions";
 import FormInput from "./form-input";
 
@@ -36,6 +38,7 @@ const userSchema = z.object({
   zipCode: z
     .string()
     .regex(/^\d{5}-?\d{3}$/, { message: "CEP inválido. Ex: 00000-000" }),
+  city: z.string().min(1, { message: "Cidade é obrigatória" }),
   state: z.string().min(1, { message: "Estado é obrigatório" }),
   street: z.string().min(1, { message: "Rua é obrigatória" }),
   number: z.coerce.number().refine((n) => !Number.isNaN(n) && n >= 1, {
@@ -58,6 +61,7 @@ type UserFormProps = {
 export default function UserForm({ user, clients = [] }: UserFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
 
   const {
     register,
@@ -65,6 +69,7 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
     formState: { errors },
     control,
     watch,
+    setValue,
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema) as any,
     mode: "onChange",
@@ -77,6 +82,7 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
           age: user.age ?? undefined,
           cpf: user.cpf,
           zipCode: user.zipCode,
+          city: user.city,
           state: user.state,
           street: user.street,
           number: user.number,
@@ -90,6 +96,7 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
           age: undefined,
           cpf: "",
           zipCode: "",
+          city: "",
           state: "",
           street: "",
           number: undefined,
@@ -98,6 +105,28 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
   });
 
   const selectedRole = watch("role");
+
+  const handleCepChange = async (value: string) => {
+    const formatted = formatCep(value);
+    setValue("zipCode", formatted);
+
+    const cleanCep = formatted.replace(/\D/g, "");
+    if (cleanCep.length === 8) {
+      setIsLoadingCep(true);
+      const result = await fetchAddressByCep(formatted);
+
+      if (result.success && result.data) {
+        setValue("street", result.data.street, { shouldValidate: true });
+        setValue("city", result.data.city, { shouldValidate: true });
+        setValue("state", result.data.state, { shouldValidate: true });
+        toast.success("Endereço encontrado!");
+      } else {
+        toast.error(result.error || "CEP não encontrado");
+      }
+
+      setIsLoadingCep(false);
+    }
+  };
 
   const onSubmit = async (data: UserFormData) => {
     startTransition(async () => {
@@ -203,13 +232,45 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
                   register={register("cpf")}
                   error={errors.cpf}
                 />
-                <FormInput
-                  label="CEP"
-                  type="text"
-                  placeholder="Insira o CEP"
-                  register={register("zipCode")}
-                  error={errors.zipCode}
-                />
+                <div className="flex flex-col gap-2">
+                  <Label>CEP</Label>
+                  <div className="relative">
+                    <Controller
+                      name="zipCode"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          placeholder="00000-000"
+                          value={field.value}
+                          onChange={(e) => {
+                            handleCepChange(e.target.value);
+                          }}
+                          className="w-full"
+                          disabled={isLoadingCep}
+                        />
+                      )}
+                    />
+                    {isLoadingCep && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      </div>
+                    )}
+                  </div>
+                  <a
+                    href="https://buscacepinter.correios.com.br/app/endereco/index.php"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                  >
+                    Não sabe seu CEP?
+                  </a>
+                  {errors.zipCode && (
+                    <span className="text-red-500 text-sm">
+                      {errors.zipCode.message}
+                    </span>
+                  )}
+                </div>
 
                 <div className="flex flex-col gap-2">
                   <Label>Estado</Label>
@@ -220,16 +281,18 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
+                        disabled
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full disabled:opacity-60 disabled:cursor-not-allowed">
                           <SelectValue placeholder="Selecione o estado" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectItem value="SP">São Paulo</SelectItem>
-                            <SelectItem value="RJ">Rio de Janeiro</SelectItem>
-                            <SelectItem value="MG">Minas Gerais</SelectItem>
-                            {/* Adicione outros estados */}
+                            {brazilianStates.map((state) => (
+                              <SelectItem key={state.value} value={state.value}>
+                                {state.label}
+                              </SelectItem>
+                            ))}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -242,14 +305,49 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
                   )}
                 </div>
 
-                <FormInput
-                  label="Endereço"
-                  type="text"
-                  placeholder="Digite o endereço"
-                  register={register("street")}
-                  error={errors.street}
-                  fullWidth
-                />
+                <div className="flex flex-col gap-2">
+                  <Label>Cidade</Label>
+                  <Controller
+                    name="city"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="text"
+                        placeholder="Cidade"
+                        {...field}
+                        disabled
+                        className="w-full disabled:opacity-60 disabled:cursor-not-allowed"
+                      />
+                    )}
+                  />
+                  {errors.city && (
+                    <span className="text-red-500 text-sm">
+                      {errors.city.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2 w-full col-span-1">
+                  <Label>Endereço</Label>
+                  <Controller
+                    name="street"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="text"
+                        placeholder="Digite o endereço"
+                        {...field}
+                        disabled
+                        className="w-full disabled:opacity-60 disabled:cursor-not-allowed"
+                      />
+                    )}
+                  />
+                  {errors.street && (
+                    <span className="text-red-500 text-sm">
+                      {errors.street.message}
+                    </span>
+                  )}
+                </div>
                 <FormInput
                   label="Número"
                   placeholder="Digite o número"

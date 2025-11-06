@@ -24,6 +24,7 @@ model User {
   cpf   String   @unique
 
   zipCode String
+  city    String
   state   String
   street  String
   number  Int
