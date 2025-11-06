@@ -49,9 +49,7 @@ export default async function DashboardPage({
   const filters = {
     consultantId: params.consultantId,
     consultantEmail: params.consultantEmail,
-    startDate: params.startDate
-      ? new Date(params.startDate)
-      : undefined,
+    startDate: params.startDate ? new Date(params.startDate) : undefined,
     endDate: params.endDate ? new Date(params.endDate) : undefined,
   };
 
@@ -69,7 +67,7 @@ export default async function DashboardPage({
         />
 
         <div className="flex flex-col items-end gap-2">
-          <Link href="/users">
+          <Link href="/users/new">
             <Button
               type="button"
               className="rounded-xs flex items-center gap-4"
