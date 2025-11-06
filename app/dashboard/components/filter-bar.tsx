@@ -1,7 +1,10 @@
 "use client";
 
+import type { User } from "@prisma/client";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
@@ -15,16 +18,28 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 
-export function FilterBar() {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(2025, 5, 12),
-    to: new Date(2025, 6, 15),
-  });
+export function FilterBar({ consultants }: { consultants: User[] }) {
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  const formatDateRange = () => {
+    if (!dateRange?.from) {
+      return "Selecione um período";
+    }
+
+    if (dateRange.from && !dateRange.to) {
+      return format(dateRange.from, "dd/MM/yyyy", { locale: ptBR });
+    }
+
+    if (dateRange.from && dateRange.to) {
+      return `${format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} - ${format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}`;
+    }
+
+    return "Selecione um período";
+  };
 
   return (
     <div className="border border-[#222729] rounded-md p-4 px-6 flex items-center gap-6">
@@ -36,14 +51,20 @@ export function FilterBar() {
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Jhon Doe</SelectLabel>
-              <SelectItem value="jim-beam">Jim Beam</SelectItem>
-              <SelectItem value="john-doe">John Doe</SelectItem>
-              <SelectItem value="jane-doe">Jane Doe</SelectItem>
-              <SelectItem value="jim-beam">Jim Beam</SelectItem>
-              <SelectItem value="john-doe">John Doe</SelectItem>
-              <SelectItem value="jane-doe">Jane Doe</SelectItem>
-              <SelectItem value="jim-beam">Jim Beam</SelectItem>
+              {consultants.length === 0 ? (
+                <SelectItem value="none">
+                  Nenhum consultor encontrado
+                </SelectItem>
+              ) : (
+                <>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {consultants.map((consultant) => (
+                    <SelectItem key={consultant.id} value={consultant.id}>
+                      {consultant.name}
+                    </SelectItem>
+                  ))}
+                </>
+              )}
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -56,10 +77,20 @@ export function FilterBar() {
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>jhon.doe@gmail.com</SelectLabel>
-              <SelectItem value="jane.doe@gmail.com">
-                jane.doe@gmail.com
-              </SelectItem>
+              {consultants.length === 0 ? (
+                <SelectItem value="none">
+                  Nenhum consultor encontrado
+                </SelectItem>
+              ) : (
+                <>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {consultants.map((consultant) => (
+                    <SelectItem key={consultant.id} value={consultant.email}>
+                      {consultant.email}
+                    </SelectItem>
+                  ))}
+                </>
+              )}
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -68,7 +99,7 @@ export function FilterBar() {
         <Label className="text-xs">Periodo</Label>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline">Periodo</Button>
+            <Button variant="outline">{formatDateRange()}</Button>
           </PopoverTrigger>
           <PopoverContent
             align="end"

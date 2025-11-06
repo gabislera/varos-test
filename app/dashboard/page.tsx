@@ -2,7 +2,7 @@ import type { UserRole } from "@prisma/client";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getUsers, getClientsByDays } from "./actions";
+import { getClientsByDays, getUsers } from "./actions";
 import { FilterBar } from "./components/filter-bar";
 import { StatsCard } from "./components/stats-card";
 import { UsersTable } from "./components/users-table";
@@ -58,6 +58,8 @@ export default async function DashboardPage({
   const STATS_DAYS = 7;
   const clientsCount = await getClientsByDays(STATS_DAYS);
 
+  const consultants = users.filter((user) => user.role === "CONSULTANT");
+
   return (
     <main className="flex-1 p-16 flex-col flex gap-6">
       <h2 className="text-2xl font-bold">Dashboard</h2>
@@ -79,7 +81,7 @@ export default async function DashboardPage({
               <PlusIcon className="w-4 h-4" color="#00F700" />
             </Button>
           </Link>
-          <FilterBar />
+          <FilterBar consultants={consultants} />
         </div>
       </div>
 
