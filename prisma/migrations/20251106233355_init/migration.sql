@@ -11,12 +11,13 @@ CREATE TABLE "User" (
     "age" INTEGER,
     "cpf" TEXT NOT NULL,
     "zipCode" TEXT NOT NULL,
+    "city" TEXT NOT NULL,
     "state" TEXT NOT NULL,
     "street" TEXT NOT NULL,
     "number" INTEGER NOT NULL,
-    "reatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "consultantId" TEXT NOT NULL,
+    "consultantId" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -31,4 +32,4 @@ CREATE UNIQUE INDEX "User_cpf_key" ON "User"("cpf");
 CREATE INDEX "User_consultantId_idx" ON "User"("consultantId");
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_consultantId_fkey" FOREIGN KEY ("consultantId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "User" ADD CONSTRAINT "User_consultantId_fkey" FOREIGN KEY ("consultantId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
