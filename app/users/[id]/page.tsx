@@ -21,7 +21,7 @@ export default async function EditUsersPage({
   const clients = clientsResult.success ? clientsResult.data : [];
 
   return (
-    <div className="flex flex-col items-center justify-center h-full">
+    <div className="flex flex-col items-center justify-center h-full p-4">
       <UserForm user={user} clients={clients} />
     </div>
   );

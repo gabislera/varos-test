@@ -123,11 +123,11 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
   };
 
   return (
-    <div className="border border-[#222729] rounded-md p-4 px-6 flex items-center gap-6">
-      <div className="flex items-center gap-2">
+    <div className="border border-[#222729] rounded-lg p-4 px-6 flex flex-col lg:flex-row items-center gap-6">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 w-full">
         <Label className="text-xs">Nome do consultor</Label>
         <Select value={selectedName} onValueChange={setSelectedName}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full lg:w-auto">
             <SelectValue placeholder="Jhon Doe" />
           </SelectTrigger>
           <SelectContent>
@@ -150,10 +150,10 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 w-full">
         <Label className="text-xs">Email do consultor</Label>
         <Select value={selectedEmail} onValueChange={setSelectedEmail}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full lg:w-auto">
             <SelectValue placeholder="jhon.doe@gmail.com" />
           </SelectTrigger>
           <SelectContent>
@@ -176,11 +176,14 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 w-full">
         <Label className="text-xs">Periodo</Label>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="justify-between gap-2">
+            <Button
+              variant="outline"
+              className="justify-between gap-2 w-full lg:w-auto"
+            >
               <span>{formatDateRange()}</span>
               {dateRange?.from && (
                 <button

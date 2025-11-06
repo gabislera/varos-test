@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getClientsByDays, getUsers } from "./actions";
 import { FilterBar } from "./components/filter-bar";
+import { MobileFilterDrawer } from "./components/mobile-filter-drawer";
 import { StatsCard } from "./components/stats-card";
 import { UsersTable } from "./components/users-table";
 
@@ -62,8 +63,22 @@ export default async function DashboardPage({
   const consultants = allUsers.filter((user) => user.role === "CONSULTANT");
 
   return (
-    <main className="flex-1 p-16 flex-col flex gap-6">
-      <h2 className="text-2xl font-bold">Dashboard</h2>
+    <main className="flex-1 p-4 lg:p-16 flex-col flex gap-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Dashboard</h2>
+        <div className="flex items-center gap-2 lg:hidden">
+          <MobileFilterDrawer consultants={consultants} />
+          <Link href="/users/new">
+            <Button
+              type="button"
+              className="rounded-xs items-center gap-4 flex"
+            >
+              Criar usuario
+              <PlusIcon className="w-4 h-4" color="#00F700" />
+            </Button>
+          </Link>
+        </div>
+      </div>
 
       <div className="flex items-center justify-between">
         <StatsCard
@@ -72,7 +87,7 @@ export default async function DashboardPage({
           period={`nos ultimos ${STATS_DAYS} dias`}
         />
 
-        <div className="flex flex-col items-end gap-2">
+        <div className=" flex-col items-end gap-2 hidden lg:flex">
           <Link href="/users/new">
             <Button
               type="button"

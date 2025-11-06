@@ -116,11 +116,11 @@ export default function UserForm({ user, clients = [] }: UserFormProps) {
 
   return (
     <form
-      className="flex flex-col w-full max-w-[600px] mt-8"
+      className="flex flex-col w-full max-w-[600px]"
       onSubmit={handleSubmit(onSubmit)}
       id="user-form"
     >
-      <div className="flex items-center justify-end gap-4">
+      <div className="flex items-center justify-end gap-4 mb-6">
         <Button type="submit" form="user-form" variant="default">
           {isPending
             ? "Salvando..."

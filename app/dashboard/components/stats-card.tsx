@@ -14,7 +14,7 @@ export function StatsCard({
   trend = true,
 }: StatsCardProps) {
   return (
-    <div className="flex flex-col items-start gap-2 p-4 border border-[#222729] bg-[#131516] text-[#B0B7BE] w-full max-w-[212px]">
+    <div className="flex flex-row lg:flex-col items-center lg:items-start gap-2 p-4 border border-[#222729] bg-[#131516] text-[#B0B7BE] w-full lg:max-w-[212px] justify-center lg:justify-start">
       <h3 className="text-sm">{title}</h3>
       <div className="flex items-center gap-2">
         <p className="text-2xl font-bold">{value}</p>
