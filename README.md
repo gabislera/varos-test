@@ -1,36 +1,201 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Varos Test
 
-## Getting Started
+Varos Test é uma aplicação web moderna desenvolvida com Next.js 16, React 19 e Prisma, que permite o gerenciamento completo de usuários com diferentes perfis. O sistema oferece funcionalidades para administradores, consultores e clientes, incluindo dashboard com estatísticas, filtros avançados, e formulários completos com validação automática de dados.
 
-First, run the development server:
+## Funcionalidades
+
+- Cadastro e gerenciamento completo de usuários
+- Sistema de roles com controle de acesso (Admin, Consultor e Cliente)
+- Dashboard interativo com estatísticas dos últimos 7 dias
+- Relacionamento entre consultores e clientes
+- Filtros avançados por consultor e período de cadastro
+- Busca automática de endereço via CEP (integração com ViaCEP)
+- Validação de CPF e email únicos no sistema
+- Máscaras automáticas para CPF e telefone
+- Interface responsiva com design mobile-first
+- Feedback visual com toasts para ações do usuário
+- Skeletons para melhor experiência durante carregamento
+
+## Tecnologias utilizadas
+
+![Next.js](https://img.shields.io/badge/next.js-%23000000.svg?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/postgresql-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![React Hook Form](https://img.shields.io/badge/React%20Hook%20Form-%23EC5990.svg?style=for-the-badge&logo=reacthookform&logoColor=white)
+![Zod](https://img.shields.io/badge/zod-%233068b7.svg?style=for-the-badge&logo=zod&logoColor=white)
+
+## Pré-requisitos
+
+- [Node.js](https://nodejs.org/) (versão 20 ou superior)
+- [npm](https://www.npmjs.com/) ou [pnpm](https://pnpm.io/)
+- [PostgreSQL](https://www.postgresql.org/) (ou acesso a um banco PostgreSQL na nuvem)
+
+## Instalação
+
+Clone o repositório:
+
+```bash
+git clone <url-do-repositorio>
+cd varos-test
+```
+
+Instale as dependências:
+
+```bash
+npm install
+# ou
+pnpm install
+```
+
+## Configuração do Ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```bash
+cp .env.example .env
+```
+
+Configure as variáveis de ambiente:
+
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/varos_test"
+DIRECT_URL="postgresql://user:password@localhost:5432/varos_test"
+```
+
+Configure o banco de dados:
+
+```bash
+# Execute as migrações do Prisma
+npx prisma migrate dev
+
+# Popule o banco com dados iniciais
+npm run seed
+```
+
+## Execução
+
+Para rodar o projeto em modo de desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
+# ou
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse [http://localhost:3000](http://localhost:3000) no navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Funções do Usuário
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Admin
 
-## Learn More
+- Acesso total ao sistema
+- Gerenciamento completo de usuários
+- Visualização de estatísticas e métricas
+- Aplicação de filtros avançados no dashboard
+- Edição e exclusão de qualquer usuário
 
-To learn more about Next.js, take a look at the following resources:
+### Consultor
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Cadastro de novos clientes
+- Visualização de clientes vinculados
+- Edição de informações de clientes
+- Acesso ao dashboard com filtros
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Cliente
 
-## Deploy on Vercel
+- Visualização de informações pessoais
+- Atualização de dados cadastrais
+- Visualização de consultor vinculado
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Modelo de Dados
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### User
+```prisma
+model User {
+  id           String   @id @default(cuid())
+  role         UserRole
+  name         String
+  email        String   @unique
+  phone        String
+  age          Int?
+  cpf          String   @unique
+
+  zipCode      String
+  city         String
+  state        String
+  street       String
+  number       Int
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  clients      User[]   @relation("ConsultantToClient")
+  consultant   User?    @relation("ConsultantToClient")
+  consultantId String?
+}
+
+enum UserRole {
+  ADMIN
+  CONSULTANT
+  CLIENT
+}
+```
+
+## Variáveis de Ambiente
+
+- `DATABASE_URL`: URL de conexão com o PostgreSQL (obrigatória)
+- `DIRECT_URL`: URL direta para conexão com o PostgreSQL (obrigatória para migrations)
+
+## Build para Produção
+
+```bash
+npm run build
+npm start
+```
+
+## Scripts Disponíveis
+
+```bash
+npm run dev        # Inicia o servidor de desenvolvimento
+npm run build      # Cria build de produção
+npm start          # Inicia servidor de produção
+npm run lint       # Executa o linter (Biome)
+npm run format     # Formata o código
+npm run seed       # Popula o banco com dados iniciais
+```
+
+## Estrutura do Projeto
+
+```
+varos-test/
+├── app/
+│   ├── dashboard/          # Dashboard principal
+│   │   ├── components/     # Componentes do dashboard
+│   │   │   └── skeletons/  # Loading states
+│   │   ├── actions.ts      # Server actions
+│   │   └── page.tsx        # Página principal
+│   ├── users/              # Gestão de usuários
+│   │   ├── [id]/           # Edição de usuário
+│   │   ├── new/            # Novo usuário
+│   │   ├── components/     # Componentes de formulário
+│   │   └── actions.ts      # Server actions
+│   ├── layout.tsx          # Layout raiz
+│   └── page.tsx            # Redirect para dashboard
+├── components/
+│   └── ui/                 # Componentes UI reutilizáveis
+├── lib/
+│   ├── prisma.ts           # Cliente Prisma
+│   └── utils.ts            # Funções utilitárias
+├── prisma/
+│   ├── schema.prisma       # Schema do banco
+│   └── seed.ts             # Seed inicial
+└── types/
+    └── index.ts            # Tipos TypeScript centralizados
+```
+
+## Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
