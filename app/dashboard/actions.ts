@@ -3,65 +3,92 @@ import { UserRole } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
-export const getUsers = unstable_cache(
-  async (filters?: {
-    consultantId?: string;
-    consultantEmail?: string;
-    startDate?: Date;
-    endDate?: Date;
-  }) => {
-    try {
-      const where: any = {};
+export const getUsers = async (filters?: {
+  consultantId?: string;
+  consultantEmail?: string;
+  startDate?: Date;
+  endDate?: Date;
+}) => {
+  const cacheKey = [
+    "users",
+    filters?.consultantId || "all",
+    filters?.consultantEmail || "all",
+    filters?.startDate?.toISOString() || "no-start",
+    filters?.endDate?.toISOString() || "no-end",
+  ];
 
-      if (filters?.consultantId) {
-        where.consultantId = filters.consultantId;
-      }
+  return unstable_cache(
+    async () => {
+      try {
+        const where: Record<string, unknown> = {};
+        const orConditions: Record<string, unknown>[] = [];
 
-      if (filters?.consultantEmail) {
-        where.consultant = {
-          email: filters.consultantEmail,
-        };
-      }
+        if (filters?.consultantId) {
+          orConditions.push(
+            { id: filters.consultantId },
+            { consultantId: filters.consultantId },
+          );
+        }
 
-      if (filters?.startDate || filters?.endDate) {
-        where.createdAt = {};
-        if (filters.startDate) where.createdAt.gte = filters.startDate;
-        if (filters.endDate) where.createdAt.lte = filters.endDate;
-      }
-      const users = await prisma.user.findMany({
-        where,
-        include: {
-          consultant: {
-            select: {
-              name: true,
-              email: true,
+        if (filters?.consultantEmail) {
+          orConditions.push(
+            { email: filters.consultantEmail },
+            {
+              consultant: {
+                email: filters.consultantEmail,
+              },
+            },
+          );
+        }
+
+        if (orConditions.length > 0) {
+          where.OR = orConditions;
+        }
+
+        if (filters?.startDate || filters?.endDate) {
+          where.createdAt = {};
+          if (filters.startDate)
+            (where.createdAt as Record<string, unknown>).gte =
+              filters.startDate;
+          if (filters.endDate)
+            (where.createdAt as Record<string, unknown>).lte = filters.endDate;
+        }
+
+        const users = await prisma.user.findMany({
+          where,
+          include: {
+            consultant: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
+            clients: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
             },
           },
-          clients: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
+          orderBy: {
+            createdAt: "desc",
           },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+        });
 
-      return users;
-    } catch (error) {
-      console.error("Erro ao buscar usuários:", error);
-      return [];
-    }
-  },
-  ["users"],
-  {
-    tags: ["users"],
-    revalidate: 60,
-  },
-);
+        return users;
+      } catch (error) {
+        console.error("Erro ao buscar usuários:", error);
+        return [];
+      }
+    },
+    cacheKey,
+    {
+      tags: ["users"],
+      revalidate: 60,
+    },
+  )();
+};
 
 export const getClientsByDays = async (days: number) => {
   return unstable_cache(

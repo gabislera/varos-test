@@ -1,10 +1,12 @@
 "use client";
 
 import type { User } from "@prisma/client";
-import { useState } from "react";
-import type { DateRange } from "react-day-picker";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { X } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import type { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
@@ -23,7 +25,86 @@ import {
 } from "@/components/ui/select";
 
 export function FilterBar({ consultants }: { consultants: User[] }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [selectedName, setSelectedName] = useState<string>("all");
+  const [selectedEmail, setSelectedEmail] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const isFirstRender = useRef(true);
+  const isUpdatingFromURL = useRef(false);
+
+  useEffect(() => {
+    isUpdatingFromURL.current = true;
+
+    const nameParam = searchParams.get("consultantId");
+    const emailParam = searchParams.get("consultantEmail");
+    const dateFromParam = searchParams.get("startDate");
+    const dateToParam = searchParams.get("endDate");
+
+    if (nameParam) {
+      setSelectedName(nameParam);
+    } else {
+      setSelectedName("all");
+    }
+
+    if (emailParam) {
+      setSelectedEmail(emailParam);
+    } else {
+      setSelectedEmail("all");
+    }
+
+    if (dateFromParam || dateToParam) {
+      const from = dateFromParam
+        ? parse(dateFromParam, "yyyy-MM-dd", new Date())
+        : undefined;
+      const to = dateToParam
+        ? parse(dateToParam, "yyyy-MM-dd", new Date())
+        : undefined;
+
+      setDateRange({ from, to });
+    } else {
+      setDateRange(undefined);
+    }
+
+    setTimeout(() => {
+      isUpdatingFromURL.current = false;
+    }, 0);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (isUpdatingFromURL.current) {
+      return;
+    }
+
+    const params = new URLSearchParams();
+
+    if (selectedName && selectedName !== "all") {
+      params.set("consultantId", selectedName);
+    }
+
+    if (selectedEmail && selectedEmail !== "all") {
+      params.set("consultantEmail", selectedEmail);
+    }
+
+    if (dateRange?.from) {
+      params.set("startDate", format(dateRange.from, "yyyy-MM-dd"));
+    }
+
+    if (dateRange?.to) {
+      params.set("endDate", format(dateRange.to, "yyyy-MM-dd"));
+    }
+
+    const queryString = params.toString();
+    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+    router.replace(newUrl, { scroll: false });
+  }, [selectedName, selectedEmail, dateRange, pathname, router]);
 
   const formatDateRange = () => {
     if (!dateRange?.from) {
@@ -45,7 +126,7 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
     <div className="border border-[#222729] rounded-md p-4 px-6 flex items-center gap-6">
       <div className="flex items-center gap-2">
         <Label className="text-xs">Nome do consultor</Label>
-        <Select>
+        <Select value={selectedName} onValueChange={setSelectedName}>
           <SelectTrigger>
             <SelectValue placeholder="Jhon Doe" />
           </SelectTrigger>
@@ -71,7 +152,7 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
       </div>
       <div className="flex items-center gap-2">
         <Label className="text-xs">Email do consultor</Label>
-        <Select>
+        <Select value={selectedEmail} onValueChange={setSelectedEmail}>
           <SelectTrigger>
             <SelectValue placeholder="jhon.doe@gmail.com" />
           </SelectTrigger>
@@ -99,7 +180,21 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
         <Label className="text-xs">Periodo</Label>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline">{formatDateRange()}</Button>
+            <Button variant="outline" className="justify-between gap-2">
+              <span>{formatDateRange()}</span>
+              {dateRange?.from && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDateRange(undefined);
+                  }}
+                  className="hover:text-destructive/90 transition-colors cursor-pointer"
+                  type="button"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </Button>
           </PopoverTrigger>
           <PopoverContent
             align="end"

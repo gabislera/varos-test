@@ -58,7 +58,8 @@ export default async function DashboardPage({
   const STATS_DAYS = 7;
   const clientsCount = await getClientsByDays(STATS_DAYS);
 
-  const consultants = users.filter((user) => user.role === "CONSULTANT");
+  const allUsers = await getUsers();
+  const consultants = allUsers.filter((user) => user.role === "CONSULTANT");
 
   return (
     <main className="flex-1 p-16 flex-col flex gap-6">
