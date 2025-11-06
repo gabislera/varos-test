@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { User } from "../page";
+import type { User } from "@/types";
 
 interface UsersTableProps {
   users: User[];

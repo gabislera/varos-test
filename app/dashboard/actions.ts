@@ -21,11 +21,9 @@ export const getUsers = async (filters?: {
     async () => {
       try {
         const where: Record<string, unknown> = {
-          // Sempre buscar apenas clientes
           role: UserRole.CLIENT,
         };
 
-        // Se houver filtro de consultor, aplicar
         if (filters?.consultantId) {
           where.consultantId = filters.consultantId;
         }
@@ -108,7 +106,21 @@ export const getConsultants = async () => {
   )();
 };
 
-export const getClientsByDays = async (days: number) => {
+export const getClientsByDays = async (
+  days: number,
+  filters?: {
+    consultantId?: string;
+    consultantEmail?: string;
+    startDate?: Date;
+    endDate?: Date;
+  },
+) => {
+  const cacheKey = [
+    `clients-last-${days}-days`,
+    filters?.consultantId || "all",
+    filters?.consultantEmail || "all",
+  ];
+
   return unstable_cache(
     async () => {
       try {
@@ -116,13 +128,25 @@ export const getClientsByDays = async (days: number) => {
         dateFrom.setDate(dateFrom.getDate() - days);
         dateFrom.setHours(0, 0, 0, 0);
 
-        const count = await prisma.user.count({
-          where: {
-            role: UserRole.CLIENT,
-            createdAt: {
-              gte: dateFrom,
-            },
+        const where: Record<string, unknown> = {
+          role: UserRole.CLIENT,
+          createdAt: {
+            gte: dateFrom,
           },
+        };
+
+        if (filters?.consultantId) {
+          where.consultantId = filters.consultantId;
+        }
+
+        if (filters?.consultantEmail) {
+          where.consultant = {
+            email: filters.consultantEmail,
+          };
+        }
+
+        const count = await prisma.user.count({
+          where,
         });
 
         return count;
@@ -131,7 +155,7 @@ export const getClientsByDays = async (days: number) => {
         return 0;
       }
     },
-    [`clients-last-${days}-days`],
+    cacheKey,
     {
       tags: ["users"],
       revalidate: 60,

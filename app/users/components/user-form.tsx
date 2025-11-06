@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -27,6 +26,7 @@ import {
   formatCpf,
   formatPhone,
 } from "@/lib/utils";
+import type { UserWithClients } from "@/types";
 import { createUser, updateUser } from "../actions";
 import FormInput from "./form-input";
 
@@ -54,10 +54,6 @@ const userSchema = z.object({
 });
 
 type UserFormData = z.infer<typeof userSchema>;
-
-type UserWithClients = User & {
-  clients?: Array<{ id: string; name: string; email: string }>;
-};
 
 type UserFormProps = {
   user?: UserWithClients;

@@ -1,6 +1,5 @@
 "use client";
 
-import type { User } from "@prisma/client";
 import { Filter } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,10 +13,11 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import type { UserSelect } from "@/types";
 import { FilterBar } from "./filter-bar";
 
 interface MobileFilterDrawerProps {
-  consultants: User[];
+  consultants: UserSelect[];
 }
 
 export function MobileFilterDrawer({ consultants }: MobileFilterDrawerProps) {

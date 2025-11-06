@@ -1,23 +1,8 @@
 "use server";
 
-import type { UserRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-
-export type UserFormData = {
-  role: UserRole;
-  name: string;
-  email: string;
-  phone: string;
-  age?: number;
-  cpf: string;
-  zipCode: string;
-  city: string;
-  state: string;
-  street: string;
-  number: number;
-  clientIds?: string[];
-};
+import type { UserFormData } from "@/types";
 
 export async function getClients() {
   try {
@@ -44,6 +29,18 @@ export async function getClients() {
 
 export async function createUser(data: UserFormData) {
   try {
+    if (!data.city || data.city.trim() === "") {
+      return { success: false, message: "Cidade é obrigatória" };
+    }
+
+    if (!data.street || data.street.trim() === "") {
+      return { success: false, message: "Rua é obrigatória" };
+    }
+
+    if (!data.state || data.state.trim() === "") {
+      return { success: false, message: "Estado é obrigatório" };
+    }
+
     const existing = await prisma.user.findFirst({
       where: {
         OR: [{ email: data.email }, { cpf: data.cpf }],
@@ -88,7 +85,10 @@ export async function createUser(data: UserFormData) {
     return { success: true, message: "Usuário criado com sucesso!" };
   } catch (error) {
     console.error("Erro ao criar usuário:", error);
-    return { success: false, message: "Erro ao criar usuário" };
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Erro ao criar usuário",
+    };
   }
 }
 
@@ -126,4 +126,3 @@ export async function updateUser(id: string, data: UserFormData) {
     return { success: false, message: "Erro ao atualizar usuário" };
   }
 }
-

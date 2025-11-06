@@ -1,6 +1,5 @@
 "use client";
 
-import type { User } from "@prisma/client";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { X } from "lucide-react";
@@ -23,8 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { UserSelect } from "@/types";
 
-export function FilterBar({ consultants }: { consultants: User[] }) {
+export function FilterBar({ consultants }: { consultants: UserSelect[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

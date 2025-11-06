@@ -1,4 +1,3 @@
-import type { UserRole } from "@prisma/client";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -10,31 +9,6 @@ import { FilterBarSkeleton } from "./components/skeletons/filter-bar-skeleton";
 import { MobileFilterSkeleton } from "./components/skeletons/mobile-filter-skeleton";
 import { StatsCardSkeleton } from "./components/skeletons/stats-card-skeleton";
 import { UsersTableSkeleton } from "./components/skeletons/users-table-skeleton";
-
-export interface User {
-  id: string;
-  role: UserRole;
-  name: string;
-  email: string;
-  phone: string;
-  cpf: string;
-  age: number | null;
-  zipCode: string;
-  state: string;
-  street: string;
-  number: number;
-  consultant: {
-    name: string;
-    email: string;
-  } | null;
-  clients: {
-    id: string;
-    name: string;
-    email: string;
-  }[];
-  createdAt: Date | string;
-  updatedAt: Date | string;
-}
 
 type SearchParams = {
   consultantId: string;
@@ -79,7 +53,7 @@ export default async function DashboardPage({
 
       <div className="flex items-center justify-between">
         <Suspense fallback={<StatsCardSkeleton />}>
-          <StatsData />
+          <StatsData filters={filters} />
         </Suspense>
 
         <div className=" flex-col items-end gap-2 hidden lg:flex">
