@@ -1,5 +1,5 @@
 "use server";
-import { type Prisma, UserRole } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
@@ -62,3 +62,34 @@ export const getUsers = unstable_cache(
     revalidate: 60,
   },
 );
+
+export const getClientsByDays = async (days: number) => {
+  return unstable_cache(
+    async () => {
+      try {
+        const dateFrom = new Date();
+        dateFrom.setDate(dateFrom.getDate() - days);
+        dateFrom.setHours(0, 0, 0, 0);
+
+        const count = await prisma.user.count({
+          where: {
+            role: UserRole.CLIENT,
+            createdAt: {
+              gte: dateFrom,
+            },
+          },
+        });
+
+        return count;
+      } catch (error) {
+        console.error("Erro ao buscar total de clientes:", error);
+        return 0;
+      }
+    },
+    [`clients-last-${days}-days`],
+    {
+      tags: ["users"],
+      revalidate: 60,
+    },
+  )();
+};

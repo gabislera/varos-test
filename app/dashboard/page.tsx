@@ -2,7 +2,7 @@ import type { UserRole } from "@prisma/client";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getUsers } from "./actions";
+import { getUsers, getClientsByDays } from "./actions";
 import { FilterBar } from "./components/filter-bar";
 import { StatsCard } from "./components/stats-card";
 import { UsersTable } from "./components/users-table";
@@ -55,6 +55,9 @@ export default async function DashboardPage({
 
   const users = await getUsers(filters);
 
+  const STATS_DAYS = 7;
+  const clientsCount = await getClientsByDays(STATS_DAYS);
+
   return (
     <main className="flex-1 p-16 flex-col flex gap-6">
       <h2 className="text-2xl font-bold">Dashboard</h2>
@@ -62,8 +65,8 @@ export default async function DashboardPage({
       <div className="flex items-center justify-between">
         <StatsCard
           title="Total de clientes"
-          value="128"
-          period="nos ultimos 7 dias"
+          value={clientsCount}
+          period={`nos ultimos ${STATS_DAYS} dias`}
         />
 
         <div className="flex flex-col items-end gap-2">
