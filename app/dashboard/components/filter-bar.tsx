@@ -128,7 +128,12 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
         <Label className="text-xs">Nome do consultor</Label>
         <Select value={selectedName} onValueChange={setSelectedName}>
           <SelectTrigger className="w-full lg:w-auto">
-            <SelectValue placeholder="Jhon Doe" />
+            <SelectValue>
+              {selectedName === "all"
+                ? "Todos"
+                : consultants.find((c) => c.id === selectedName)?.name ||
+                  "Selecione"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -154,7 +159,12 @@ export function FilterBar({ consultants }: { consultants: User[] }) {
         <Label className="text-xs">Email do consultor</Label>
         <Select value={selectedEmail} onValueChange={setSelectedEmail}>
           <SelectTrigger className="w-full lg:w-auto">
-            <SelectValue placeholder="jhon.doe@gmail.com" />
+            <SelectValue>
+              {selectedEmail === "all"
+                ? "Todos"
+                : consultants.find((c) => c.email === selectedEmail)?.email ||
+                  "Selecione"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>

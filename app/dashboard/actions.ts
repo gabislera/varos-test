@@ -20,29 +20,20 @@ export const getUsers = async (filters?: {
   return unstable_cache(
     async () => {
       try {
-        const where: Record<string, unknown> = {};
-        const orConditions: Record<string, unknown>[] = [];
+        const where: Record<string, unknown> = {
+          // Sempre buscar apenas clientes
+          role: UserRole.CLIENT,
+        };
 
+        // Se houver filtro de consultor, aplicar
         if (filters?.consultantId) {
-          orConditions.push(
-            { id: filters.consultantId },
-            { consultantId: filters.consultantId },
-          );
+          where.consultantId = filters.consultantId;
         }
 
         if (filters?.consultantEmail) {
-          orConditions.push(
-            { email: filters.consultantEmail },
-            {
-              consultant: {
-                email: filters.consultantEmail,
-              },
-            },
-          );
-        }
-
-        if (orConditions.length > 0) {
-          where.OR = orConditions;
+          where.consultant = {
+            email: filters.consultantEmail,
+          };
         }
 
         if (filters?.startDate || filters?.endDate) {
@@ -83,6 +74,33 @@ export const getUsers = async (filters?: {
       }
     },
     cacheKey,
+    {
+      tags: ["users"],
+      revalidate: 60,
+    },
+  )();
+};
+
+export const getConsultants = async () => {
+  return unstable_cache(
+    async () => {
+      try {
+        const consultants = await prisma.user.findMany({
+          where: {
+            role: UserRole.CONSULTANT,
+          },
+          orderBy: {
+            name: "asc",
+          },
+        });
+
+        return consultants;
+      } catch (error) {
+        console.error("Erro ao buscar consultores:", error);
+        return [];
+      }
+    },
+    ["consultants"],
     {
       tags: ["users"],
       revalidate: 60,
