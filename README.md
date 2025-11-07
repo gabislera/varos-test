@@ -31,18 +31,18 @@ Varos Test é uma aplicação web moderna desenvolvida com Next.js 16, React 19 
 
 - [Node.js](https://nodejs.org/) (versão 20 ou superior)
 - [npm](https://www.npmjs.com/) ou [pnpm](https://pnpm.io/)
-- [PostgreSQL](https://www.postgresql.org/) (ou acesso a um banco PostgreSQL na nuvem)
+- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) (para rodar o PostgreSQL localmente)
 
-## Instalação
+## Instalação e Execução Local
 
-Clone o repositório:
+### 1. Clone o repositório
 
 ```bash
 git clone <url-do-repositorio>
 cd varos-test
 ```
 
-Instale as dependências:
+### 2. Instale as dependências
 
 ```bash
 npm install
@@ -50,7 +50,7 @@ npm install
 pnpm install
 ```
 
-## Configuração do Ambiente
+### 3. Configure o ambiente
 
 Crie um arquivo `.env` na raiz do projeto:
 
@@ -58,23 +58,43 @@ Crie um arquivo `.env` na raiz do projeto:
 cp .env.example .env
 ```
 
-Configure as variáveis de ambiente:
+Para desenvolvimento local com Docker, use as seguintes variáveis de ambiente:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/varos_test"
-DIRECT_URL="postgresql://user:password@localhost:5432/varos_test"
+DATABASE_URL="postgresql://docker:docker@localhost:5432/varos"
+DIRECT_URL="postgresql://docker:docker@localhost:5432/varos"
 ```
 
-Configure o banco de dados:
+### 4. Inicie o banco de dados PostgreSQL com Docker Compose
 
 ```bash
-# Execute as migrações do Prisma
+docker-compose up -d
+```
+
+Este comando irá:
+- Baixar a imagem do PostgreSQL (se ainda não estiver baixada)
+- Criar e iniciar um container PostgreSQL
+- Expor o banco na porta 5432
+- Criar automaticamente o banco de dados `varos` com as credenciais:
+  - **Usuário**: `docker`
+  - **Senha**: `docker`
+  - **Database**: `varos`
+
+Para verificar se o container está rodando:
+
+```bash
+docker ps
+```
+
+### 5. Execute as migrações do Prisma
+
+```bash
 npx prisma migrate dev
 ```
 
-## Execução
+Este comando irá criar as tabelas no banco de dados.
 
-Para rodar o projeto em modo de desenvolvimento:
+### 6. Inicie o servidor de desenvolvimento
 
 ```bash
 npm run dev
@@ -83,6 +103,32 @@ pnpm dev
 ```
 
 Acesse [http://localhost:3000](http://localhost:3000) no navegador.
+
+## Gerenciamento do Docker
+
+### Parar o banco de dados
+
+```bash
+docker-compose down
+```
+
+### Parar e remover os dados do banco
+
+```bash
+docker-compose down -v
+```
+
+### Ver logs do banco de dados
+
+```bash
+docker-compose logs -f postgres
+```
+
+### Acessar o PostgreSQL via terminal
+
+```bash
+docker exec -it varos-postgres psql -U docker -d varos
+```
 
 ## Funções do Usuário
 
