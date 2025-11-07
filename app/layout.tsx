@@ -30,7 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <header className="w-full border-b border-[#222729] py-6 px-8 flex items-center justify-between sticky top-0 bg-background">
+        <header className="w-full border-b border-[#222729] py-6 px-8 flex items-center justify-between sticky top-0 z-50 bg-background">
           <Link href="/dashboard">
             <h1 className="text-2xl font-bold">VAROS</h1>
           </Link>
