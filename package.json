@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build --webpack",
+    "build": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -23,6 +24,7 @@
     "dotenv": "^17.2.3",
     "lucide-react": "^0.552.0",
     "next": "16.0.1",
+    "pg": "^8.16.3",
     "prisma": "^6.18.0",
     "react": "19.2.0",
     "react-day-picker": "^9.11.1",
