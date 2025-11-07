@@ -70,9 +70,6 @@ Configure o banco de dados:
 ```bash
 # Execute as migrações do Prisma
 npx prisma migrate dev
-
-# Popule o banco com dados iniciais
-npm run seed
 ```
 
 ## Execução
@@ -164,7 +161,6 @@ npm run build      # Cria build de produção
 npm start          # Inicia servidor de produção
 npm run lint       # Executa o linter (Biome)
 npm run format     # Formata o código
-npm run seed       # Popula o banco com dados iniciais
 ```
 
 ## Estrutura do Projeto
@@ -190,8 +186,7 @@ varos-test/
 │   ├── prisma.ts           # Cliente Prisma
 │   └── utils.ts            # Funções utilitárias
 ├── prisma/
-│   ├── schema.prisma       # Schema do banco
-│   └── seed.ts             # Seed inicial
+│   └── schema.prisma       # Schema do banco
 └── types/
     └── index.ts            # Tipos TypeScript centralizados
 ```
